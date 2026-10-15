@@ -1,8 +1,9 @@
 # ScienceLab
 
-Science experiments done entirely in software, so nothing living gets hurt.
-
-Inspired by [Alternatives to Animal Testing (IEEE Spectrum)](https://spectrum.ieee.org/alternatives-to-animal-testing).
+After reading the IEEE Spectrum article [Alternatives to Animal Testing](https://spectrum.ieee.org/alternatives-to-animal-testing),
+I was fascinated by the idea of using code to perform science experiments without hurting a living
+creature! So I created this to flex my interest in Life Sciences harmlessly. I'll focus a lot on
+neuroscience and whatever my pre-med daughters are studying!
 
 ## Roadmap
 
@@ -12,29 +13,51 @@ Inspired by [Alternatives to Animal Testing (IEEE Spectrum)](https://spectrum.ie
    from body cooling and work out the cause.
 3. **Lab platform** (later): more modules for the rest of the family.
 
+## Experiments
+
+| # | Notebook | What you'll see |
+|---|---|---|
+| 01 | [A neuron from scratch](experiments/neuro/01_a_neuron_from_scratch.ipynb) | Spikes, thresholds, refractory periods, and what happens when channels, potassium, or temperature go wrong |
+
 ## Layout
 
 ```
 src/sciencelab/      reusable models (import as `sciencelab.*`)
   neuro/hh.py        Hodgkin-Huxley neuron
-experiments/         notebooks, one numbered folder per topic
-  neuro/01_a_neuron_from_scratch.ipynb
+experiments/         notebooks, one folder per topic
 tests/               checks that the models behave like the real science says
 data/                downloaded datasets (git-ignored)
 ```
 
-## Setup (Windows, PowerShell)
+## Setup
+
+Requires Python 3.11+. On Windows (PowerShell):
 
 ```powershell
-python -m venv .venv            # skip if .venv already exists
+python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -e ".[dev]"
 .\.venv\Scripts\python.exe -m pytest
 .\.venv\Scripts\jupyter-lab.exe
 ```
 
-## A note on "animal-free"
+On macOS/Linux, use `.venv/bin/` instead of `.\.venv\Scripts\`.
 
-The models here run without harming anything. Some underlying science did come from animal
-work (Hodgkin and Huxley used squid axons in 1952), and much public neuroscience data is from
-mice. Where there's a choice, this project prefers human-derived data, such as tissue donated
-during surgery or cell-based lab assays.
+## Ground rules
+
+- **Animal-free.** The models run without harming anything. Some underlying science did come
+  from animal work (Hodgkin and Huxley used squid axons in 1952), and much public neuroscience
+  data is from mice. Where there's a choice, this project prefers human-derived data, such as
+  tissue donated during surgery or cell-based lab assays.
+- **Open source and public data only.** Every tool is open source, and every dataset is public,
+  with its source and license noted where it's used.
+- **No personal or health data.** Nothing here contains PII or PHI about anyone. Any data
+  recorded for the project comes from things like environmental sensors, never from people.
+
+## Disclaimer
+
+This is a learning project. The models are simplified, and nothing here is medical advice or a
+diagnostic tool.
+
+## License
+
+Code is released under the [MIT License](LICENSE). Public datasets keep their own licenses.
