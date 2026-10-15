@@ -228,3 +228,6 @@ __marimo__/
 # Large or downloaded data never goes in git; use download scripts instead
 data/
 outputs/
+
+# Personal scratch copies of notebooks
+experiments/**/scratch_*.ipynb
