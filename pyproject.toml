@@ -23,6 +23,9 @@ dev = [
     "ipykernel>=6",
     "nbformat>=5",
     "nbclient>=0.10",
+    "ruff>=0.13",
+    "mypy>=1.18",
+    "scipy-stubs>=1.16",
 ]
 
 [tool.setuptools.packages.find]
@@ -30,3 +33,52 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = ["error"]  # Power of 10, rule 10: zero warnings
+
+# Code standards follow NASA/JPL's "Power of 10" rules, adapted to Python.
+# See CONTRIBUTING.md for how each rule maps onto these settings.
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes: unused names, star imports (rule 8)
+    "I",        # import order
+    "B",        # bugbear: likely bugs
+    "UP",       # modern syntax
+    "N",        # naming
+    "SIM",      # simplifications
+    "C90",      # cyclomatic complexity (rule 1)
+    "PL",       # pylint: branches, statements, globals (rules 1, 4, 6)
+    "S102", "S307",  # no exec / eval (rule 8)
+    "NPY",      # numpy
+    "PT",       # pytest style
+    "RET",      # return statements
+    "RUF",
+]
+ignore = [
+    "N802", "N803", "N806", "N815", "N816",  # physics names like V, g_Na, I_K are conventional
+    "SIM300",   # "yoda" check misreads capitalized physics names (V >= threshold) as constants
+    "PLR2004",  # magic numbers: model constants are written as published
+    "PLR0913",  # simulate() takes several keyword parameters by design
+    "RUF001", "RUF002", "RUF003",  # allow Greek letters and symbols like µ in text
+]
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["E402", "E731"]  # notebooks import mid-file and use small lambdas
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.pylint]
+max-branches = 12
+max-statements = 50
+max-returns = 4
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+warn_unreachable = true

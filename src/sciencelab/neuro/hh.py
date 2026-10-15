@@ -29,13 +29,15 @@ teaching model, not a human neuron.
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import numpy as np
+from numpy.typing import NDArray
 from scipy.integrate import solve_ivp
 
 Stimulus = Callable[[float], float]
+FloatArray = NDArray[np.float64]
 
 
 @dataclass(frozen=True)
@@ -54,33 +56,33 @@ class HHParams:
 
     @property
     def phi(self) -> float:
-        return self.q10 ** ((self.temperature_c - 6.3) / 10.0)
+        return math.pow(self.q10, (self.temperature_c - 6.3) / 10.0)
 
 
 @dataclass
 class HHResult:
     """Time series from one simulation run."""
 
-    t: np.ndarray
-    V: np.ndarray
-    m: np.ndarray
-    h: np.ndarray
-    n: np.ndarray
-    I_stim: np.ndarray
+    t: FloatArray
+    V: FloatArray
+    m: FloatArray
+    h: FloatArray
+    n: FloatArray
+    I_stim: FloatArray
     params: HHParams
 
     @property
-    def I_Na(self) -> np.ndarray:
+    def I_Na(self) -> FloatArray:
         p = self.params
         return p.g_Na * self.m**3 * self.h * (self.V - p.E_Na)
 
     @property
-    def I_K(self) -> np.ndarray:
+    def I_K(self) -> FloatArray:
         p = self.params
         return p.g_K * self.n**4 * (self.V - p.E_K)
 
     @property
-    def I_L(self) -> np.ndarray:
+    def I_L(self) -> FloatArray:
         p = self.params
         return p.g_L * (self.V - p.E_L)
 
@@ -138,6 +140,18 @@ def no_current(t: float) -> float:
     return 0.0
 
 
+def _check_inputs(p: HHParams, t_stop: float, dt: float) -> None:
+    """Reject settings that would silently give nonsense (Power of 10, rule 5)."""
+    if not 0.0 < dt <= 1.0:
+        raise ValueError(f"dt must be in (0, 1] ms, got {dt}")
+    if not dt <= t_stop <= 1e6:
+        raise ValueError(f"t_stop must be between dt and 1e6 ms, got {t_stop}")
+    if p.C_m <= 0.0:
+        raise ValueError(f"C_m must be positive, got {p.C_m}")
+    if min(p.g_Na, p.g_K, p.g_L) < 0.0:
+        raise ValueError("conductances cannot be negative")
+
+
 def simulate(
     params: HHParams | None = None,
     stimulus: Stimulus = no_current,
@@ -147,17 +161,16 @@ def simulate(
 ) -> HHResult:
     """Integrate the model from rest and return the full time course."""
     p = params or HHParams()
+    _check_inputs(p, t_stop, dt)
     phi = p.phi
 
-    def rhs(t: float, y: np.ndarray) -> list[float]:
+    def rhs(t: float, y: FloatArray) -> list[float]:
         V, m, h, n = y
-        I_ion = (
-            p.g_Na * m**3 * h * (V - p.E_Na)
-            + p.g_K * n**4 * (V - p.E_K)
-            + p.g_L * (V - p.E_L)
-        )
+        I_Na = p.g_Na * m**3 * h * (V - p.E_Na)
+        I_K = p.g_K * n**4 * (V - p.E_K)
+        I_L = p.g_L * (V - p.E_L)
         return [
-            (stimulus(t) - I_ion) / p.C_m,
+            (stimulus(t) - I_Na - I_K - I_L) / p.C_m,
             phi * (alpha_m(V) * (1.0 - m) - beta_m(V) * m),
             phi * (alpha_h(V) * (1.0 - h) - beta_h(V) * h),
             phi * (alpha_n(V) * (1.0 - n) - beta_n(V) * n),
@@ -188,7 +201,7 @@ def simulate(
     )
 
 
-def count_spikes(V: np.ndarray, threshold: float = 0.0) -> int:
+def count_spikes(V: FloatArray, threshold: float = 0.0) -> int:
     """Number of upward crossings of the threshold voltage."""
     above = V >= threshold
     return int(np.count_nonzero(~above[:-1] & above[1:]))
