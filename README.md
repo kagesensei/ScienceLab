@@ -1,5 +1,7 @@
 # ScienceLab
 
+[![checks](https://github.com/kagesensei/ScienceLab/actions/workflows/checks.yml/badge.svg)](https://github.com/kagesensei/ScienceLab/actions/workflows/checks.yml)
+
 After reading the IEEE Spectrum article [Alternatives to Animal Testing](https://spectrum.ieee.org/alternatives-to-animal-testing),
 I was fascinated by the idea of using code to perform science experiments without hurting a living
 creature! So I created this to flex my interest in Life Sciences harmlessly. I'll focus a lot on
@@ -41,6 +43,9 @@ python -m venv .venv
 ```
 
 On macOS/Linux, use `.venv/bin/` instead of `.\.venv\Scripts\`.
+
+Code follows NASA/JPL's "Power of 10" rules adapted to Python, checked by Ruff, mypy (strict),
+and pytest on every push. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Ground rules
 
