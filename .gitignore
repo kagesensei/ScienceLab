@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# IDE (keep shared run configs if we add them later)
+.idea/workspace.xml
+.idea/shelf/
+.idea/usage.statistics.xml
+
+# Large or downloaded data never goes in git; use download scripts instead
+data/
+outputs/
